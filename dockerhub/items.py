@@ -8,9 +8,10 @@
 import scrapy
 
 
-class DockerhubItem(scrapy.Item):
+class OfficialImageItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    title = scrapy.Field()
-	link =  scrapy.Field()
-	desc = scrapy.Field()
+    name = scrapy.Field()
+    link =  scrapy.Field()
+    # stars = scrapy.Field()
+    # pulls = scrapy.Field()
