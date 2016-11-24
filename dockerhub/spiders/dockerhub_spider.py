@@ -25,10 +25,12 @@ class DockerhubSpider(scrapy.Spider):
                 # f.write("%s\n" % (link[0].split("/")[-2]))
                 item['name'] = link[0].split("/")[-2]
                 item['link'] = "https://hub.docker.com" + link[0]
+                with open("/home/pyt/dockerhub/images", "a+") as f:
+                    f.write("%s\n" % item['name'])
                 # print item
                 items.append(item)
 
-        return items
+        # return items
 
 
 class SingleImageSpider(scrapy.Spider):
@@ -36,8 +38,9 @@ class SingleImageSpider(scrapy.Spider):
     allowed_domains = ["hub.docker.com"]
     # base_url = "https://hub.docker.com/explore/?page="
     base_query_url = "https://hub.docker.com/v2/search/repositories/?page=1&page_size=100&query="
+    download_delay = 1
     start_urls = []
-    for line in open("../images", "r"):
+    for line in open("/home/pyt/dockerhub/images", "r"):
         start_url = base_query_url + line.strip("\n")
         start_urls.append(start_url)
 
@@ -50,20 +53,20 @@ class SingleImageSpider(scrapy.Spider):
         print count
         results = json_ob['results']
         for result in results:
-            time.sleep(1)
+            # time.sleep(1)
             item = ClassifiedImageItem()
             item['star_count'] = result['star_count']
             item['pull_count'] = result['pull_count']
-            item['short_description'] = result['short_description']
+            item['short_description'] = result['short_description'].encode('utf-8')
             item['is_automated'] = result['is_automated']
             item['is_official'] = result['is_official']
-            item['repo_name'] = result['repo_name']
+            item['repo_name'] = result['repo_name'].encode('utf-8')
             if item['is_official']:
-                item['link'] = "https://hub.docker.com/_/" + item['repo_name']
+                item['link'] = "https://hub.docker.com/_/" + item['repo_name'].encode('utf-8')
             else:
-                item['link'] = "https://hub.docker.com/r/" + item['repo_name']
-            item['category'] = url.split("query=")[1].split("&")[0].replace('%2', '/')
-            yield self.parse_item(item)
+                item['link'] = "https://hub.docker.com/r/" + item['repo_name'].encode('utf-8')
+            item['category'] = url.split("query=")[1].split("&")[0].replace('%2', '/').encode('utf-8')
+            yield item
 
         next_page_link = json_ob['next']
         # print next_page_link
